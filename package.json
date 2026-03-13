@@ -1,0 +1,10 @@
+{
+  "name": "frontend-dev-toolbox",
+  "version": "1.0.0",
+  "description": "The ultimate swiss-knife for frontend developers: calculators, converters, clamp generators and devtools integrations.",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "author": "Oleksandr Vorushylo",
+  "license": "MIT"
+}
