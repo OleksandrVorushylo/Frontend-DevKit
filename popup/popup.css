@@ -1486,47 +1486,11 @@ body.embedded .header-actions {
   cursor: pointer;
 }
 
-/* Presets with horizontal scroll */
-.gg-presets-wrapper {
-  position: relative;
-  margin: 0 -8px;
-  padding: 0 8px;
-}
-
+/* Presets */
 .gg-presets {
   display: flex;
   gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-light) transparent;
-  /* Slider behavior */
-  flex-wrap: nowrap;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-
-.gg-presets::-webkit-scrollbar {
-  height: 4px;
-}
-
-.gg-presets::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.gg-presets::-webkit-scrollbar-thumb {
-  background: var(--border-light);
-  border-radius: 2px;
-}
-
-.gg-presets::-webkit-scrollbar-thumb:hover {
-  background: var(--border-focus);
-}
-
-/* Preset buttons - prevent shrinking for slider effect */
-.gg-presets .gg-preset {
-  flex-shrink: 0;
-  scroll-snap-align: start;
+  flex-wrap: wrap;
 }
 
 /* Separate Gap Controls */
