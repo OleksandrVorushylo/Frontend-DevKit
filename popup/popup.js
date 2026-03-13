@@ -5,7 +5,12 @@ const toolModules = {
   percent: '../tools/percent.js',
   clamp: '../tools/clamp.js',
   rem: '../tools/rem.js',
-  color: '../tools/color.js'
+  color: '../tools/color.js',
+  'aspect-ratio': '../tools/aspect-ratio.js',
+  grid: '../tools/grid.js',
+  vw: '../tools/vw.js',
+  'line-height': '../tools/line-height.js',
+  'letter-spacing': '../tools/letter-spacing.js'
 };
 
 const extensionApi = globalThis.chrome || globalThis.browser;
@@ -76,7 +81,7 @@ function toggleOverlayInPage(src, initialOpacity, iconUrl) {
 
   const title = document.createElement('div');
   title.className = 'fdt-title';
-  title.textContent = 'Frontend Box';
+  title.textContent = 'Frontend Dev Toolbox';
 
   const overlayIcon = document.createElement('img');
   overlayIcon.className = 'fdt-icon';
@@ -446,6 +451,58 @@ async function initPopup() {
   const initialBtn = document.querySelector(`.nav-btn[data-tool="${initialTool}"]`);
   const initialName = initialBtn ? initialBtn.textContent.trim() : 'Clamp Generator';
   loadTool(initialTool, initialName);
+
+  // Accordion Logic
+  const sections = document.querySelectorAll('.sidebar-section');
+  const sectionHeaders = document.querySelectorAll('.section-header');
+  
+  // Load collapse state
+  const settingsObj = await getSettings();
+  let collapsedSections = settingsObj.collapsedSections || [];
+
+  // Auto-expand section containing initial tool
+  if (initialBtn) {
+    const parentSection = initialBtn.closest('.sidebar-section');
+    if (parentSection) {
+      const header = parentSection.querySelector('h3');
+      if (header) {
+        const title = header.childNodes[0].textContent.trim();
+        if (collapsedSections.includes(title)) {
+          collapsedSections = collapsedSections.filter(t => t !== title);
+          saveSettings({ collapsedSections: collapsedSections });
+        }
+      }
+    }
+  }
+
+  sections.forEach((section) => {
+    const header = section.querySelector('h3');
+    if (header) {
+      const title = header.childNodes[0].textContent.trim();
+      if (collapsedSections.includes(title)) {
+        section.classList.add('is-collapsed');
+      }
+    }
+  });
+
+  sectionHeaders.forEach(header => {
+    header.addEventListener('click', async () => {
+      const section = header.closest('.sidebar-section');
+      if (!section) return;
+      
+      const isCollapsed = section.classList.toggle('is-collapsed');
+      const title = header.childNodes[0].textContent.trim();
+
+      const current = await getSettings();
+      let collapsed = current.collapsedSections || [];
+      if (isCollapsed) {
+        if (!collapsed.includes(title)) collapsed.push(title);
+      } else {
+        collapsed = collapsed.filter(t => t !== title);
+      }
+      await saveSettings({ collapsedSections: collapsed });
+    });
+  });
 }
 
 initPopup();

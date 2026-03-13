@@ -56,6 +56,19 @@ const CALC_TYPES = [
       { type: 'text', value: 'to' },
       { type: 'input', key: 'y', placeholder: '150', width: '70px' }
     ]
+  },
+  {
+    id: 'percentageDifference',
+    title: 'Percentage difference between X and Y',
+    suffix: '%',
+    sign: false,
+    compute: (x, y) => percentMath.percentageDifference(x, y),
+    template: [
+      { type: 'text', value: 'Difference between' },
+      { type: 'input', key: 'x', placeholder: '100', width: '70px' },
+      { type: 'text', value: 'and' },
+      { type: 'input', key: 'y', placeholder: '150', width: '70px' }
+    ]
   }
 ];
 

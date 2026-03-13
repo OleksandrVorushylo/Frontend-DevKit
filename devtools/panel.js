@@ -50,6 +50,14 @@ function renderProps(styles) {
         <button class="btn action-rem" data-px="${numMatch[1]}">REM</button>
         <button class="btn action-clamp" data-px="${numMatch[1]}">Clamp</button>
       `;
+
+      if (prop === 'line-height') {
+        const fsMatch = (styles['font-size'] || '').match(/^([\d\.]+)px/);
+        if (fsMatch) {
+          const unitless = parseFloat(numMatch[1]) / parseFloat(fsMatch[1]);
+          actionsHtml += `<button class="btn action-unitless" data-val="${unitless.toFixed(3)}">Unitless</button>`;
+        }
+      }
     }
 
     const row = document.createElement('div');
@@ -68,7 +76,7 @@ function renderProps(styles) {
     if (remBtn) remBtn.addEventListener('click', async () => {
       const px = parseFloat(remBtn.dataset.px);
       const s = await getSettings();
-      const rem = px / (s.rootFontSize || 16);
+      const rem = (px / (s.rootFontSize || 16)).toFixed(3);
       copyText(`${prop}: ${rem}rem;`);
     });
 
@@ -88,6 +96,13 @@ function renderProps(styles) {
       
       copyText(`${prop}: ${clampStr};`);
     });
+
+    const unitlessBtn = row.querySelector('.action-unitless');
+    if (unitlessBtn) {
+      unitlessBtn.addEventListener('click', () => {
+        copyText(`${prop}: ${unitlessBtn.dataset.val};`);
+      });
+    }
 
     inspector.appendChild(row);
   });

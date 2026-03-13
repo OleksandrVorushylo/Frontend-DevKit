@@ -45,5 +45,50 @@ export const percentMath = {
   isPercentageOf: (x, y) => x / (y / 100),
 
   // Increase/Decrease from X to Y -> ((Y - X) / X) * 100
-  difference: (x, y) => ((y - x) / x) * 100
+  difference: (x, y) => ((y - x) / x) * 100,
+
+  // Percentage Difference -> (|X - Y| / ((X + Y) / 2)) * 100
+  percentageDifference: (x, y) => {
+    if (x + y === 0) return 0;
+    return (Math.abs(x - y) / ((x + y) / 2)) * 100;
+  }
 };
+
+// Layout & Spacing
+export function calculateVw(px, viewportWidth) {
+  if (!viewportWidth) return 0;
+  return (px / viewportWidth) * 100;
+}
+
+export function calculatePxFromVw(vw, viewportWidth) {
+  return (vw / 100) * viewportWidth;
+}
+
+// Typography
+export function calculateLineHeight(lineHeightPx, fontSizePx) {
+  if (!fontSizePx) return 0;
+  return lineHeightPx / fontSizePx;
+}
+
+export function calculateLetterSpacing(trackingPercent, fontSizePx) {
+  return (trackingPercent / 100) * fontSizePx;
+}
+
+// Aspect Ratio
+export function getGcd(a, b) {
+  return b === 0 ? a : getGcd(b, a % b);
+}
+
+export function calculateAspectRatio(width, height) {
+  if (!width || !height) return { w: 0, h: 0, string: '0:0' };
+  const common = getGcd(width, height);
+  const w = width / common;
+  const h = height / common;
+  return { w, h, string: `${w}:${h}` };
+}
+
+// Grid
+export function calculateColumnWidth(containerWidth, columns, gap) {
+  if (columns <= 0) return 0;
+  return (containerWidth - (gap * (columns - 1))) / columns;
+}

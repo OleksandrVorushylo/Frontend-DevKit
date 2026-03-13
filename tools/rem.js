@@ -27,6 +27,15 @@ export function render() {
         </div>
       </div>
 
+      <div class="quick-actions" id="rem-quick-actions" style="margin-top: 15px; display: flex; gap: 6px; flex-wrap: wrap;">
+        <button class="secondary-btn small" data-px="8">8px</button>
+        <button class="secondary-btn small" data-px="16">16px</button>
+        <button class="secondary-btn small" data-px="24">24px</button>
+        <button class="secondary-btn small" data-px="32">32px</button>
+        <button class="secondary-btn small" data-px="48">48px</button>
+        <button class="secondary-btn small" data-px="64">64px</button>
+      </div>
+
       <div class="output-box" style="margin-top: 20px;">
         <div class="output-code" id="rem-output">1.5rem</div>
         <button class="icon-btn" id="rem-copy" title="Copy Value">
@@ -71,6 +80,17 @@ export async function init(container) {
   els.px.addEventListener('input', calcFromPx);
   els.rem.addEventListener('input', calcFromRem);
   
+  const quickActions = container.querySelector('#rem-quick-actions');
+  if (quickActions) {
+    quickActions.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (btn && btn.dataset.px) {
+        els.px.value = btn.dataset.px;
+        calcFromPx();
+      }
+    });
+  }
+
   els.copyBtn.addEventListener('click', () => window.copyToClipboard(els.output.textContent));
 
   function calcFromPx() {

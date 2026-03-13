@@ -15,7 +15,8 @@ const DEFAULT_SETTINGS = {
   maxViewport: 1440,
   useRem: false,
   minMaxFactor: 0.5,
-  clampHistory: []
+  clampHistory: [],
+  collapsedSections: []
 };
 
 const extensionApi = globalThis.chrome || globalThis.browser;
