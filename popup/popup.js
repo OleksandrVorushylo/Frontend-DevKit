@@ -400,11 +400,17 @@ async function initPopup() {
       if (!tabsApi) return;
 
       const tab = await queryActiveTab(tabsApi);
-      if (!tab?.id) return;
+      if (!tab?.id) {
+        showToast('No active tab');
+        return;
+      }
 
       const url = extensionApi?.runtime?.getURL(`popup/popup.html?mode=embedded&tool=${encodeURIComponent(currentToolKey)}`);
       const iconUrl = extensionApi?.runtime?.getURL('icons/icon48.png');
-      if (!url) return;
+      if (!url) {
+        showToast('Failed to resolve popup URL');
+        return;
+      }
 
       if (scriptingApi?.executeScript) {
         scriptingApi.executeScript({
@@ -443,4 +449,5 @@ async function initPopup() {
 }
 
 initPopup();
+
 

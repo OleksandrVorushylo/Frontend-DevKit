@@ -207,6 +207,110 @@ input:focus {
   border-color: var(--border-focus);
 }
 
+/* ==== Advanced Color Input Component ==== */
+.color-input-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 6px;
+  transition: border-color 0.15s;
+}
+.color-input-wrapper:focus-within {
+  border-color: var(--border-focus);
+}
+
+.color-input-wrapper .color-picker-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.color-input-wrapper .color-picker-swatch input[type="color"] {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.color-input-wrapper .color-picker-swatch .swatch-bg {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-sm);
+  background-image: conic-gradient(rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
+  background-size: 8px 8px;
+}
+.color-input-wrapper .color-picker-swatch .swatch-color {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-sm);
+}
+
+.color-input-wrapper input[type="text"] {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: var(--text-main);
+  outline: none;
+  width: 100%;
+}
+.color-input-wrapper input[type="text"]:focus {
+  border-color: transparent; /* managed by wrapper */
+}
+
+.color-input-wrapper .eyedropper-btn,
+.color-input-wrapper .icon-btn-field {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+}
+.color-input-wrapper .eyedropper-btn:hover,
+.color-input-wrapper .icon-btn-field:hover {
+  background: var(--bg-hover);
+  color: var(--text-main);
+}
+
+.color-input-wrapper.compact-wrapper {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.color-input-wrapper .hidden-text-input {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
 .primary-btn {
   background-color: var(--primary-bg);
   color: var(--primary-text);

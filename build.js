@@ -54,6 +54,12 @@ function generateManifest(target) {
                  }
              };
         }
+        // Remove use_dynamic_url for Firefox as it is unsupported and causes warnings
+        if (manifest.web_accessible_resources) {
+            manifest.web_accessible_resources.forEach(resource => {
+                delete resource.use_dynamic_url;
+            });
+        }
     }
 
     return JSON.stringify(manifest, null, 2);
