@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Frontend Dev Toolbox</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+          Frontend Box
+        </div>
+      </div>
+      
+      <div class="sidebar-scroll">
+        <div class="sidebar-section">
+          <h3>CSS Tools</h3>
+          <button class="nav-btn active" data-tool="clamp">Clamp Generator</button>
+          <button class="nav-btn" data-tool="rem">REM/PX Converter</button>
+          <button class="nav-btn" data-tool="color">Color Tools</button>
+        </div>
+        
+        <div class="sidebar-section">
+          <h3>Calculators</h3>
+          <button class="nav-btn" data-tool="percent">Percentage Calc</button>
+        </div>
+      </div>
+      
+      <div class="sidebar-footer">
+        <button class="nav-btn devtools-hint" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          Also in DevTools (F12)
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="main-header">
+        <h2 id="tool-title">Clamp Generator</h2>
+        <div class="header-actions">
+          <div class="opacity-control">
+            <span class="opacity-label">Idle</span>
+            <input id="idle-opacity" type="range" min="0.5" max="1" step="0.05" />
+            <span id="idle-opacity-value" class="opacity-value">100%</span>
+          </div>
+          <button id="pin-popup" class="icon-btn" title="Pin popup">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l5 5-6 6-4-4 5-7z"></path><path d="M15 9l-7 7"></path><path d="M9 15l-6 6"></path></svg>
+          </button>
+        </div>
+      </header>
+      <div class="content-body" id="tool-container">
+        <!-- Tool content injected here -->
+      </div>
+    </main>
+  </div>
+  
+  <div id="toast" class="toast">Action successful</div>
+  
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

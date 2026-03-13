@@ -1,0 +1,21 @@
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vsc/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+node_modules/
+dist/
+build/
+test.log
+PROJECT_ANALYSIS.md
+
+# Web/Browser scraps
+.chrome/
+.firefox/
