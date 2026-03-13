@@ -1145,3 +1145,398 @@ body.embedded .header-actions {
 .color-tool input[type='radio'] {
   display: none;
 }
+
+/* ==== Grid Generator ==== */
+.grid-generator {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gg-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gg-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 70px;
+}
+
+.gg-control-group label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.gg-control-group input {
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  width: 100%;
+}
+
+.gg-control-group input:focus {
+  border-color: var(--border-focus);
+  outline: none;
+}
+
+.gg-btn-secondary {
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.gg-btn-secondary:hover {
+  border-color: var(--border-focus);
+  color: var(--text-main);
+}
+
+.gg-presets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.gg-preset {
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.gg-preset:hover {
+  border-color: var(--border-focus);
+  color: var(--text-main);
+}
+
+.gg-editor-wrapper {
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  min-height: 140px;
+}
+
+.gg-grid {
+  display: grid;
+  gap: 2px;
+}
+
+.gg-cell {
+  width: 28px;
+  height: 28px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: var(--text-main);
+  transition: all 0.1s;
+  user-select: none;
+}
+
+.gg-cell:hover {
+  border-color: var(--border-focus);
+  background: var(--bg-hover);
+}
+
+.gg-cell-selected {
+  border-color: var(--text-main);
+  background: rgba(255,255,255,0.15);
+  box-shadow: 0 0 0 1px var(--text-main);
+}
+
+.gg-cell-area {
+  color: white;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  border-color: transparent;
+}
+
+.gg-cell-area:hover {
+  opacity: 0.9;
+}
+
+.gg-area-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gg-area-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.gg-area-input-row input {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.gg-area-input-row input:focus {
+  border-color: var(--border-focus);
+  outline: none;
+}
+
+.gg-btn-primary {
+  background: var(--primary-bg);
+  color: var(--primary-text);
+  border: none;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.gg-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.gg-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.gg-areas-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+.gg-area-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+.gg-area-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.gg-area-name {
+  color: var(--text-main);
+  text-transform: lowercase;
+}
+
+.gg-area-cells {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.gg-area-delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.15s;
+}
+
+.gg-area-delete:hover {
+  background: rgba(255,100,100,0.2);
+  color: #ff8a8a;
+}
+
+.gg-output-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 8px;
+}
+
+.gg-tab {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.gg-tab:hover {
+  color: var(--text-main);
+  background: var(--bg-hover);
+}
+
+.gg-tab.active {
+  color: var(--text-main);
+  background: var(--bg-hover);
+  font-weight: 500;
+}
+
+.gg-output-box {
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  position: relative;
+  min-height: 120px;
+}
+
+.gg-code {
+  margin: 0;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #67e8f9;
+  white-space: pre-wrap;
+  word-break: break-all;
+  padding-right: 36px;
+}
+
+.gg-btn-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.gg-btn-icon:hover {
+  border-color: var(--border-focus);
+  color: var(--text-main);
+}
+
+/* Grid Generator Options */
+.gg-options {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.gg-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.gg-option:hover {
+  color: var(--text-main);
+}
+
+.gg-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-bg);
+  cursor: pointer;
+}
+
+/* Presets with horizontal scroll */
+.gg-presets-wrapper {
+  position: relative;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+
+.gg-presets {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-light) transparent;
+  /* Slider behavior */
+  flex-wrap: nowrap;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.gg-presets::-webkit-scrollbar {
+  height: 4px;
+}
+
+.gg-presets::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.gg-presets::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 2px;
+}
+
+.gg-presets::-webkit-scrollbar-thumb:hover {
+  background: var(--border-focus);
+}
+
+/* Preset buttons - prevent shrinking for slider effect */
+.gg-presets .gg-preset {
+  flex-shrink: 0;
+  scroll-snap-align: start;
+}
+
+/* Separate Gap Controls */
+.gg-gap-controls {
+  display: flex;
+  gap: 12px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
