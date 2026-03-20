@@ -35,45 +35,64 @@ function queryActiveTab(tabsApi) {
 }
 
 function toggleOverlayInPage(src, initialOpacity, iconUrl) {
-  const existing = document.getElementById('fdt-overlay');
-  if (existing) {
-    existing.remove();
+  const hostId = 'fdt-overlay-host-v3';
+  const existingHost = document.getElementById(hostId);
+  if (existingHost) {
+    existingHost.__fdtCleanup?.();
+    existingHost.remove();
     return;
   }
 
-  const styleId = 'fdt-overlay-style-v2';
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = [
-      '#fdt-overlay{position:fixed;top:80px;left:0;width:720px;height:560px;background:rgba(10,10,10,0.94);border:1px solid rgba(255,255,255,0.08);border-radius:10px;box-shadow:0 18px 40px rgba(0,0,0,0.45);z-index:2147483647;display:flex;flex-direction:column;min-height:0;overflow:hidden;opacity:1;transition:opacity 0.2s;}',
-      '#fdt-overlay *{box-sizing:border-box;}',
-      '#fdt-overlay .fdt-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;background:#0f0f0f;border-bottom:1px solid rgba(255,255,255,0.06);cursor:move;user-select:none;}',
-      '#fdt-overlay .fdt-title{font-size:12px;color:#e5e5e5;font-family:system-ui, -apple-system, Segoe UI, sans-serif;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis;}',
-      '#fdt-overlay .fdt-icon{width:16px;height:16px;display:none;}',
-      '#fdt-overlay .fdt-opacity{display:flex;align-items:center;gap:6px;font-size:10px;color:#b5b5b5;}',
-      '#fdt-overlay .fdt-opacity input{width:90px;}',
-      '#fdt-overlay .fdt-opacity-value{min-width:34px;text-align:right;color:#e5e5e5;}',
-      '#fdt-overlay .fdt-actions{display:flex;gap:6px;flex:0 0 auto;}',
-      '#fdt-overlay .fdt-btn{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:#151515;color:#d4d4d4;display:grid;place-items:center;font-size:12px;cursor:pointer;}',
-      '#fdt-overlay .fdt-btn:hover{border-color:rgba(255,255,255,0.28);}',
-      '#fdt-overlay input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;}',
-      '#fdt-overlay input[type=range]::-webkit-slider-runnable-track{height:4px;background:linear-gradient(90deg,#e5e7eb,#bfc7d2);border-radius:999px;}',
-      '#fdt-overlay input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#f5f5f5;border:1px solid rgba(0,0,0,0.4);margin-top:-4px;}',
-      '#fdt-overlay input[type=range]::-moz-range-track{height:4px;background:linear-gradient(90deg,#e5e7eb,#bfc7d2);border-radius:999px;}',
-      '#fdt-overlay input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#f5f5f5;border:1px solid rgba(0,0,0,0.4);}',
-      '#fdt-overlay.fdt-collapsed{width:150px;box-shadow:0 10px 24px rgba(0,0,0,0.45);}',
-      '#fdt-overlay.fdt-collapsed .fdt-header{padding:6px 8px;gap:6px;justify-content:flex-end;}',
-      '#fdt-overlay.fdt-collapsed .fdt-opacity{display:none !important;}',
-      '#fdt-overlay.fdt-collapsed .fdt-title{display:none;}',
-      '#fdt-overlay.fdt-collapsed .fdt-icon{display:block;margin-right:auto;}',
-      '#fdt-overlay.fdt-collapsed .fdt-actions{gap:4px;}',
-      '#fdt-overlay .fdt-body{flex:1;min-height:0;background:#111;}',
-      '#fdt-overlay .fdt-body iframe{width:100%;height:100%;border:0;background:transparent;}',
-      '#fdt-overlay.fdt-collapsed .fdt-body{display:none;}'
-    ].join('');
-    (document.head || document.documentElement).appendChild(style);
+  // Remove legacy overlay (v2) if it still exists on the page.
+  const legacyOverlay = document.getElementById('fdt-overlay');
+  if (legacyOverlay) {
+    legacyOverlay.remove();
+    const legacyStyle = document.getElementById('fdt-overlay-style-v2');
+    if (legacyStyle) legacyStyle.remove();
+    return;
   }
+
+  const host = document.createElement('div');
+  host.id = hostId;
+  host.style.all = 'initial';
+  (document.body || document.documentElement).appendChild(host);
+
+  if (!host.attachShadow) {
+    host.remove();
+    return;
+  }
+
+  const shadowRoot = host.attachShadow({ mode: 'open' });
+  const style = document.createElement('style');
+  style.textContent = [
+    ':host{all:initial;}',
+    '#fdt-overlay{position:fixed;top:80px;left:0;width:720px;height:560px;background:rgba(10,10,10,0.94);border:1px solid rgba(255,255,255,0.08);border-radius:10px;box-shadow:0 18px 40px rgba(0,0,0,0.45);z-index:2147483647;display:flex;flex-direction:column;min-height:0;overflow:hidden;opacity:1;transition:opacity 0.2s;}',
+    '#fdt-overlay *{box-sizing:border-box;}',
+    '#fdt-overlay .fdt-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;background:#0f0f0f;border-bottom:1px solid rgba(255,255,255,0.06);cursor:move;user-select:none;}',
+    '#fdt-overlay .fdt-title{font-size:12px;color:#e5e5e5;font-family:system-ui, -apple-system, Segoe UI, sans-serif;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis;}',
+    '#fdt-overlay .fdt-icon{width:16px;height:16px;display:none;}',
+    '#fdt-overlay .fdt-opacity{display:flex;align-items:center;gap:6px;font-size:10px;color:#b5b5b5;}',
+    '#fdt-overlay .fdt-opacity input{width:90px;}',
+    '#fdt-overlay .fdt-opacity-value{min-width:34px;text-align:right;color:#e5e5e5;}',
+    '#fdt-overlay .fdt-actions{display:flex;gap:6px;flex:0 0 auto;}',
+    '#fdt-overlay .fdt-btn{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:#151515;color:#d4d4d4;display:grid;place-items:center;font-size:12px;cursor:pointer;}',
+    '#fdt-overlay .fdt-btn:hover{border-color:rgba(255,255,255,0.28);}',
+    '#fdt-overlay input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;}',
+    '#fdt-overlay input[type=range]::-webkit-slider-runnable-track{height:4px;background:linear-gradient(90deg,#e5e7eb,#bfc7d2);border-radius:999px;}',
+    '#fdt-overlay input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#f5f5f5;border:1px solid rgba(0,0,0,0.4);margin-top:-4px;}',
+    '#fdt-overlay input[type=range]::-moz-range-track{height:4px;background:linear-gradient(90deg,#e5e7eb,#bfc7d2);border-radius:999px;}',
+    '#fdt-overlay input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#f5f5f5;border:1px solid rgba(0,0,0,0.4);}',
+    '#fdt-overlay.fdt-collapsed{width:150px;box-shadow:0 10px 24px rgba(0,0,0,0.45);}',
+    '#fdt-overlay.fdt-collapsed .fdt-header{padding:6px 8px;gap:6px;justify-content:flex-end;}',
+    '#fdt-overlay.fdt-collapsed .fdt-opacity{display:none !important;}',
+    '#fdt-overlay.fdt-collapsed .fdt-title{display:none;}',
+    '#fdt-overlay.fdt-collapsed .fdt-icon{display:block;margin-right:auto;}',
+    '#fdt-overlay.fdt-collapsed .fdt-actions{gap:4px;}',
+    '#fdt-overlay .fdt-body{flex:1;min-height:0;background:#111;}',
+    '#fdt-overlay .fdt-body iframe{width:100%;height:100%;border:0;background:transparent;}',
+    '#fdt-overlay.fdt-collapsed .fdt-body{display:none;}'
+  ].join('');
+  shadowRoot.appendChild(style);
 
   const overlay = document.createElement('div');
   overlay.id = 'fdt-overlay';
@@ -159,7 +178,7 @@ function toggleOverlayInPage(src, initialOpacity, iconUrl) {
   overlay.style.width = `${width}px`;
   overlay.style.height = `${height}px`;
 
-  (document.body || document.documentElement).appendChild(overlay);
+  shadowRoot.appendChild(overlay);
 
   let idleOpacityValue = typeof initialOpacity === 'number' ? initialOpacity : 1;
   let isHovering = false;
@@ -235,9 +254,19 @@ function toggleOverlayInPage(src, initialOpacity, iconUrl) {
     applyCollapsed();
   });
 
+  const onResize = () => {
+    clampPosition(isCollapsed ? compactWidth : width);
+  };
+
+  host.__fdtCleanup = () => {
+    document.removeEventListener('pointerup', stopAdjusting);
+    window.removeEventListener('resize', onResize);
+  };
+
   btnClose.addEventListener('click', (e) => {
     e.stopPropagation();
-    overlay.remove();
+    host.__fdtCleanup?.();
+    host.remove();
   });
 
   let dragging = false;
@@ -280,9 +309,7 @@ function toggleOverlayInPage(src, initialOpacity, iconUrl) {
   header.addEventListener('pointerup', endDrag);
   header.addEventListener('pointercancel', endDrag);
 
-  window.addEventListener('resize', () => {
-    clampPosition(isCollapsed ? compactWidth : width);
-  });
+  window.addEventListener('resize', onResize);
 }
 
 async function initPopup() {
@@ -508,5 +535,4 @@ async function initPopup() {
 }
 
 initPopup();
-
 

@@ -188,9 +188,9 @@ export function init(container) {
     if (state.separateGap && state.rowGap && state.colGap) {
       const rowGap = previewGapValue(state.rowGap);
       const colGap = previewGapValue(state.colGap);
+      previewEl.style.gap = `${rowGap}px ${colGap}px`;
       previewEl.style.rowGap = `${rowGap}px`;
       previewEl.style.columnGap = `${colGap}px`;
-      previewEl.style.gap = '';
     } else {
       const gap = previewGapValue(state.gap);
       previewEl.style.gap = `${gap}px`;
@@ -292,7 +292,8 @@ export function init(container) {
   });
 
   gapInput.addEventListener('input', () => {
-    state.gap = (gapInput.value || '16') + 'px';
+    const value = gapInput.value === '' ? '16' : gapInput.value;
+    state.gap = value + 'px';
     updatePreview();
   });
 
@@ -312,19 +313,23 @@ export function init(container) {
     gapControls.style.display = state.separateGap ? 'flex' : 'none';
     gapInput.parentElement.style.display = state.separateGap ? 'none' : 'flex';
     if (state.separateGap) {
-      state.rowGap = (rowGapInput.value || '16') + 'px';
-      state.colGap = (colGapInput.value || '16') + 'px';
+      const rowValue = rowGapInput.value === '' ? '16' : rowGapInput.value;
+      const colValue = colGapInput.value === '' ? '16' : colGapInput.value;
+      state.rowGap = rowValue + 'px';
+      state.colGap = colValue + 'px';
     }
     updatePreview();
   });
 
   rowGapInput.addEventListener('input', () => {
-    state.rowGap = (rowGapInput.value || '16') + 'px';
+    const value = rowGapInput.value === '' ? '16' : rowGapInput.value;
+    state.rowGap = value + 'px';
     updatePreview();
   });
 
   colGapInput.addEventListener('input', () => {
-    state.colGap = (colGapInput.value || '16') + 'px';
+    const value = colGapInput.value === '' ? '16' : colGapInput.value;
+    state.colGap = value + 'px';
     updatePreview();
   });
 
@@ -376,5 +381,4 @@ export function init(container) {
     }
   };
 }
-
 
