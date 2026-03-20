@@ -348,6 +348,20 @@ export function init(container) {
           while (maxRow + 1 < state.rows && grid[maxRow + 1][cIdx] === cell) maxRow++;
           while (maxCol + 1 < state.cols && grid[rIdx][maxCol + 1] === cell) maxCol++;
 
+          // BUG FIX: Validate entire rectangle has the same area name
+          let isValidRect = true;
+          for (let r = rIdx; r <= maxRow && isValidRect; r++) {
+            for (let c = cIdx; c <= maxCol && isValidRect; c++) {
+              if (grid[r][c] !== cell) {
+                isValidRect = false;
+                // Limit to valid sub-rectangle
+                maxRow = r - 1;
+                maxCol = c - 1;
+                break;
+              }
+            }
+          }
+
           // Mark processed
           for (let r = rIdx; r <= maxRow; r++) {
             for (let c = cIdx; c <= maxCol; c++) {

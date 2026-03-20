@@ -9,6 +9,7 @@ const toolModules = {
   'aspect-ratio': '../tools/aspect-ratio.js',
   grid: '../tools/grid.js',
   'grid-generator': '../tools/grid-generator.js',
+  'flexbox-generator': '../tools/flexbox-generator.js',
   vw: '../tools/vw.js',
   'line-height': '../tools/line-height.js',
   'letter-spacing': '../tools/letter-spacing.js'
