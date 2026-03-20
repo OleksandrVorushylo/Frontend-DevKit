@@ -1988,3 +1988,787 @@ body.embedded .header-actions {
   color: #991b1b;
 }
 
+
+/* ==== Time Tracker ==== */
+.tt-tool {
+  gap: 14px;
+}
+
+.tt-card {
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tt-card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tt-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.tt-card-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.tt-add-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+}
+
+.tt-add-row .primary-btn,
+.tt-actions-row .secondary-btn {
+  padding: 8px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.tt-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tt-task {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tt-task.is-active {
+  border-color: var(--border-focus);
+  box-shadow: inset 0 0 0 1px rgba(97, 218, 251, 0.25);
+}
+
+.tt-task-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.tt-task-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.tt-task-title {
+  font-size: 12px;
+  color: var(--text-main);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.tt-task-time {
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 11px;
+  color: #67e8f9;
+}
+
+.tt-task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.tt-btn {
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 3px 7px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.tt-btn:hover {
+  border-color: var(--border-focus);
+  color: var(--text-main);
+}
+
+.tt-btn.danger {
+  color: #fca5a5;
+}
+
+.tt-task-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tt-tag {
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+.tt-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tt-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tt-field label {
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.tt-field input,
+.tt-field select {
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  color: var(--text-main);
+  font-size: 12px;
+  padding: 7px 8px;
+}
+
+.tt-checks {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tt-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.tt-check input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--primary-bg);
+}
+
+.tt-pomo-status {
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-input);
+  color: var(--text-main);
+}
+
+.tt-actions-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tt-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tt-stat {
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-input);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tt-stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+}
+
+.tt-stat-value {
+  font-size: 13px;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  color: #67e8f9;
+}
+
+.tt-chart {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  align-items: end;
+  min-height: 82px;
+  padding: 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-input);
+}
+
+.tt-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.tt-bar {
+  width: 100%;
+  max-width: 18px;
+  min-height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #67e8f9, #3b82f6);
+}
+
+.tt-bar-label {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.tt-tags-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tt-tag-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.tt-tag-row strong {
+  color: var(--text-main);
+}
+
+.tt-history {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.tt-history-group {
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-input);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tt-history-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+}
+
+.tt-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tt-history-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-main);
+}
+
+.tt-empty,
+.tt-empty-inline {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 880px) {
+  .tt-add-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tt-form-grid,
+  .tt-stats-grid,
+  .tt-history {
+    grid-template-columns: 1fr;
+  }
+
+  .tt-task-title {
+    max-width: none;
+  }
+}
+
+:root[data-theme="light"] .tt-card,
+:root[data-theme="light"] .tt-task,
+:root[data-theme="light"] .tt-history-group,
+:root[data-theme="light"] .tt-stat,
+:root[data-theme="light"] .tt-pomo-status,
+:root[data-theme="light"] .tt-chart,
+:root[data-theme="light"] .tt-field input,
+:root[data-theme="light"] .tt-field select,
+:root[data-theme="light"] .tt-btn,
+:root[data-theme="light"] .tt-tag {
+  background: #ffffff;
+}
+
+:root[data-theme="light"] .tt-task-time,
+:root[data-theme="light"] .tt-stat-value {
+  color: #1d4ed8;
+}
+
+
+/* ==== Time Tracker v2 ==== */
+.tt-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tt-add-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tt-project-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tt-project-field label {
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.tt-project-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.tt-project-row input,
+.tt-project-row select {
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  color: var(--text-main);
+  font-size: 12px;
+  padding: 7px 8px;
+}
+
+.tt-project-toggle {
+  padding: 7px 10px !important;
+  font-size: 11px !important;
+}
+
+.tt-advanced-fields-box {
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-input);
+  padding: 0;
+  overflow: hidden;
+}
+
+.tt-advanced-fields-box summary {
+  cursor: pointer;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.tt-advanced-fields {
+  border-top: 1px solid var(--border-light);
+  padding: 8px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tt-advanced-fields textarea,
+.tt-advanced-fields input {
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  color: var(--text-main);
+  font-size: 12px;
+  padding: 7px 8px;
+  font-family: inherit;
+}
+
+.tt-task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.tt-project-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+.tt-task-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.35;
+  white-space: pre-wrap;
+}
+
+.tt-task-link-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tt-link-btn {
+  font-size: 11px;
+  color: #67e8f9;
+  text-decoration: none;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 3px 7px;
+  background: var(--bg-sidebar);
+}
+
+.tt-link-btn:hover {
+  border-color: var(--border-focus);
+}
+
+/* ==== Pomodoro Tool ==== */
+.pm-tool {
+  gap: 14px;
+}
+
+.pm-card {
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pm-head {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pm-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.pm-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.pm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.pm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pm-field label {
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pm-field input,
+.pm-field select {
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  color: var(--text-main);
+  font-size: 12px;
+  padding: 7px 8px;
+}
+
+.pm-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.pm-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.pm-check input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--primary-bg);
+}
+
+.pm-status {
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 12px;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-input);
+  color: var(--text-main);
+  padding: 8px 10px;
+}
+
+.pm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pm-state-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.pm-state-item {
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-input);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pm-state-item span {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+}
+
+.pm-state-item strong {
+  font-size: 12px;
+  color: var(--text-main);
+}
+
+@media (max-width: 880px) {
+  .pm-grid,
+  .pm-state-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tt-project-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+:root[data-theme="light"] .pm-card,
+:root[data-theme="light"] .pm-state-item,
+:root[data-theme="light"] .pm-status,
+:root[data-theme="light"] .pm-field input,
+:root[data-theme="light"] .pm-field select,
+:root[data-theme="light"] .tt-advanced-fields-box,
+:root[data-theme="light"] .tt-advanced-fields textarea,
+:root[data-theme="light"] .tt-advanced-fields input,
+:root[data-theme="light"] .tt-link-btn,
+:root[data-theme="light"] .tt-project-row input,
+:root[data-theme="light"] .tt-project-row select {
+  background: #ffffff;
+}
+
+
+/* ==== Time Tracker Inline Edit + Rich History ==== */
+.tt-task-datetime {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.tt-task-datetime-muted {
+  margin-top: 1px;
+}
+
+.tt-task.is-editing {
+  border-color: var(--border-focus);
+}
+
+.tt-task-edit-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tt-task-edit-fields input,
+.tt-task-edit-fields textarea,
+.tt-task-edit-fields select {
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  color: var(--text-main);
+  padding: 7px 8px;
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.tt-history-entry {
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-sidebar);
+  overflow: hidden;
+}
+
+.tt-history-entry > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--text-main);
+}
+
+.tt-history-entry > summary::-webkit-details-marker {
+  display: none;
+}
+
+.tt-history-entry-body {
+  border-top: 1px solid var(--border-light);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tt-history-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tt-history-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+}
+
+.tt-history-grid span {
+  color: var(--text-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.tt-history-grid strong {
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.tt-history-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.35;
+  white-space: pre-wrap;
+}
+
+.tt-history-link-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tt-history-sessions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tt-history-session {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 11px;
+  padding: 6px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-input);
+}
+
+.tt-history-session strong {
+  color: var(--text-main);
+}
+
+@media (max-width: 880px) {
+  .tt-history-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tt-history-session {
+    grid-template-columns: 1fr;
+  }
+}
+
+:root[data-theme="light"] .tt-task-edit-fields input,
+:root[data-theme="light"] .tt-task-edit-fields textarea,
+:root[data-theme="light"] .tt-task-edit-fields select,
+:root[data-theme="light"] .tt-history-entry,
+:root[data-theme="light"] .tt-history-session {
+  background: #ffffff;
+}
+

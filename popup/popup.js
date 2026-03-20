@@ -13,6 +13,8 @@ const toolModules = {
   vw: '../tools/vw.js',
   'line-height': '../tools/line-height.js',
   'letter-spacing': '../tools/letter-spacing.js',
+  'time-tracker': '../tools/time-tracker.js',
+  pomodoro: '../tools/pomodoro.js',
   settings: '../tools/settings.js'
 };
 
@@ -591,4 +593,6 @@ async function initPopup() {
 }
 
 initPopup();
+
+
 
