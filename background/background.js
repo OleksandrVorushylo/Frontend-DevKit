@@ -5,7 +5,10 @@ const DEFAULT_SETTINGS = {
   minViewport: 640,
   maxViewport: 1440,
   useRem: false,
-  minMaxFactor: 0.5
+  minMaxFactor: 0.5,
+  theme: 'dark',
+  historyLimit: 15,
+  historyAutoClearDays: 0
 };
 
 const extensionApi = globalThis.chrome || globalThis.browser;
@@ -136,3 +139,4 @@ function handleContextMenuAction(actionId, selectionText, settings) {
     copyAndToast(clampStr);
   }
 }
+

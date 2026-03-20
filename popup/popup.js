@@ -12,7 +12,8 @@ const toolModules = {
   'flexbox-generator': '../tools/flexbox-generator.js',
   vw: '../tools/vw.js',
   'line-height': '../tools/line-height.js',
-  'letter-spacing': '../tools/letter-spacing.js'
+  'letter-spacing': '../tools/letter-spacing.js',
+  settings: '../tools/settings.js'
 };
 
 const extensionApi = globalThis.chrome || globalThis.browser;
@@ -331,6 +332,53 @@ async function initPopup() {
   let toastTimer = null;
   let idleOpacity = 1;
 
+  const VALID_THEMES = new Set(['dark', 'light', 'system']);
+
+  const resolveTheme = (mode) => {
+    if (mode === 'system') {
+      const prefersLight = window.matchMedia?.('(prefers-color-scheme: light)').matches;
+      return prefersLight ? 'light' : 'dark';
+    }
+    return mode === 'light' ? 'light' : 'dark';
+  };
+
+  function applyTheme(mode, shouldPersist = false) {
+    const normalized = VALID_THEMES.has(mode) ? mode : 'dark';
+    const resolved = resolveTheme(normalized);
+
+    root.setAttribute('data-theme-mode', normalized);
+    root.setAttribute('data-theme', resolved);
+
+    if (shouldPersist) {
+      saveSettings({ theme: normalized });
+    }
+  }
+
+  function getThemeMode() {
+    return root.getAttribute('data-theme-mode') || 'dark';
+  }
+
+  window.fdtThemeAPI = {
+    getThemeMode,
+    applyTheme
+  };
+  const onSystemThemeChange = () => {
+    const mode = root.getAttribute('data-theme-mode') || 'dark';
+    if (mode === 'system') {
+      applyTheme('system');
+    }
+  };
+
+  const systemThemeQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  if (systemThemeQuery) {
+    if (systemThemeQuery.addEventListener) {
+      systemThemeQuery.addEventListener('change', onSystemThemeChange);
+    } else if (systemThemeQuery.addListener) {
+      systemThemeQuery.addListener(onSystemThemeChange);
+    }
+  }
+
+  applyTheme('dark');
   function showToast(message = 'Done') {
     if (!toast) return;
     toast.textContent = message;
@@ -379,9 +427,11 @@ async function initPopup() {
 
   try {
     const settings = await getSettings();
-    if (settings?.idleOpacity) setIdleOpacity(settings.idleOpacity);
+    setIdleOpacity(settings?.idleOpacity ?? 1);
+    applyTheme(settings?.theme || 'dark');
   } catch (e) {
     setIdleOpacity(1);
+    applyTheme('dark');
   }
 
   if (opacityInput) {
@@ -390,6 +440,12 @@ async function initPopup() {
     });
   }
 
+  window.addEventListener('fdt-theme-change', (event) => {
+    const themeMode = event?.detail?.theme;
+    if (!themeMode) return;
+    applyTheme(themeMode, true);
+    showToast('Theme updated');
+  });
   window.addEventListener('message', (event) => {
     const data = event.data || {};
     if (data.type !== 'fdt-set-opacity') return;
