@@ -152,10 +152,13 @@ function normalizeTask(raw, idx) {
     id: raw?.id || `task_${idx}`,
     title: String(raw?.title || `Task ${idx + 1}`).trim().slice(0, 80),
     project: normalizeProjectName(raw?.project),
+    projectUrl: normalizeTaskUrl(raw?.projectUrl),
     description: normalizeDescription(raw?.description),
     taskUrl: normalizeTaskUrl(raw?.taskUrl),
     tags: normalizeTags(raw?.tags),
     sessions,
+    isStopped: Boolean(raw?.isStopped),
+    completedAt: raw?.completedAt == null ? null : n(raw?.completedAt, null),
     createdAt: n(raw?.createdAt, Date.now()),
     updatedAt: n(raw?.updatedAt, Date.now())
   };
@@ -302,7 +305,10 @@ function startTask(state, taskId, at, source = 'manual') {
     });
   }
 
+  task.isStopped = false;
+  task.completedAt = null;
   task.updatedAt = at;
+  moveTaskToTop(state, task.id);
   state.activeTaskId = task.id;
   state.lastActivityAt = at;
 }
@@ -329,6 +335,31 @@ function removeTask(state, taskId, at) {
   }
 
   state.lastActivityAt = at;
+}
+
+function moveTaskToTop(state, taskId) {
+  const idx = state.tasks.findIndex((task) => task.id === taskId);
+  if (idx <= 0) return;
+  const [task] = state.tasks.splice(idx, 1);
+  state.tasks.unshift(task);
+}
+
+function stopTask(state, taskId, at) {
+  pauseTask(state, taskId, at);
+  const task = findTask(state, taskId);
+  if (!task) return;
+  task.isStopped = true;
+  task.completedAt = at;
+  task.updatedAt = at;
+}
+
+function resumeStoppedTask(state, taskId, at) {
+  const task = findTask(state, taskId);
+  if (!task) return;
+  task.isStopped = false;
+  task.completedAt = null;
+  task.updatedAt = at;
+  moveTaskToTop(state, taskId);
 }
 
 function sessionMs(session, now) {
@@ -358,6 +389,11 @@ function compact(ms) {
 function formatSystemDateTime(ts) {
   if (!Number.isFinite(ts) || ts <= 0) return '—';
   return new Date(ts).toLocaleString();
+}
+
+function formatSystemDate(ts) {
+  if (!Number.isFinite(ts) || ts <= 0) return '—';
+  return new Date(ts).toLocaleDateString();
 }
 
 function dayKey(ts) {
@@ -494,7 +530,7 @@ function csvEscape(v) {
 }
 
 function toCsv(state, now) {
-  const lines = ['Task,Project,Tags,Description,Task URL,Start,End,Duration (minutes),Source'];
+  const lines = ['Task,Project,Project URL,Tags,Description,Task URL,Start,End,Duration (minutes),Source'];
 
   state.tasks.forEach((task) => {
     task.sessions.forEach((session) => {
@@ -504,6 +540,7 @@ function toCsv(state, now) {
       lines.push([
         csvEscape(task.title),
         csvEscape(task.project || ''),
+        csvEscape(task.projectUrl || ''),
         csvEscape(task.tags.map((tag) => `#${tag}`).join(' ')),
         csvEscape(task.description || ''),
         csvEscape(task.taskUrl || ''),
@@ -611,32 +648,36 @@ function taskTimeline(task, now) {
   };
 }
 
-function sessionsForDay(task, dayKeyValue, now) {
+function pauseMarksForDay(task, dayKeyValue) {
   const { start, end } = dayBounds(dayKeyValue);
-  const sessions = [];
+  const marks = [];
 
   task.sessions.forEach((session) => {
-    const sessionEnd = session.end == null ? now : session.end;
-    if (sessionEnd <= start || session.start >= end) return;
-
-    const sliceStart = Math.max(start, session.start);
-    const sliceEnd = Math.min(end, sessionEnd);
-    if (sliceEnd <= sliceStart) return;
-
-    sessions.push({
-      sessionId: session.id,
-      source: session.source,
-      start: sliceStart,
-      end: sliceEnd,
-      duration: sliceEnd - sliceStart
-    });
+    if (!Number.isFinite(session.end)) return;
+    if (session.end <= start || session.end >= end) return;
+    marks.push(session.end);
   });
 
-  sessions.sort((a, b) => a.start - b.start);
-  return sessions;
+  marks.sort((a, b) => a - b);
+  return marks;
 }
 
-function renderHistoryGroup(title, rows, dayKeyValue, taskById, now) {
+function historyBriefText(task, dayKeyValue, dayMs) {
+  const dateTs = new Date(`${dayKeyValue}T00:00:00`).getTime();
+  const lines = [
+    `Task: ${task.title}`,
+    task.project ? `Project: ${task.project}` : null,
+    `Date: ${formatSystemDate(dateTs)}`,
+    `Total: ${compact(dayMs)}`,
+    task.description ? `Description: ${task.description}` : null,
+    task.projectUrl ? `Project link: ${task.projectUrl}` : null,
+    task.taskUrl ? `Task link: ${task.taskUrl}` : null
+  ].filter(Boolean);
+
+  return lines.join('\n');
+}
+
+function renderHistoryGroup(title, rows, dayKeyValue, taskById, now, openHistoryKeys) {
   if (!rows.length) {
     return `
       <div class="tt-history-group">
@@ -655,34 +696,72 @@ function renderHistoryGroup(title, rows, dayKeyValue, taskById, now) {
           if (!task) return '';
 
           const timeline = taskTimeline(task, now);
-          const daySessions = sessionsForDay(task, dayKeyValue, now);
+          const pauseMarks = pauseMarksForDay(task, dayKeyValue);
           const tags = task.tags.length ? task.tags.map((tag) => `#${tag}`).join(' ') : '—';
+          const endLabel = timeline?.activeSince
+            ? 'Active'
+            : (task.completedAt || timeline?.lastEnd || null);
+          const statusLabel = timeline?.activeSince
+            ? 'Active'
+            : (task.isStopped ? 'Stopped' : 'Paused');
+
+          const historyId = `${dayKeyValue}:${task.id}`;
+          const opened = openHistoryKeys.has(historyId) ? 'open' : '';
+          const canResumeToday = dayKeyValue === dayKey(now) && task.isStopped;
 
           return `
-            <details class="tt-history-entry">
+            <details class="tt-history-entry" data-history-key="${esc(historyId)}" ${opened}>
               <summary>
-                <span>${esc(task.title)}</span>
-                <strong>${esc(compact(row.ms))}</strong>
+                <span class="tt-history-summary-title">${esc(task.title)}</span>
+                <strong class="tt-history-summary-time">${esc(compact(row.ms))}</strong>
               </summary>
               <div class="tt-history-entry-body">
-                <div class="tt-history-grid">
-                  <div><span>Project</span><strong>${esc(task.project || '—')}</strong></div>
-                  <div><span>Tags</span><strong>${esc(tags)}</strong></div>
-                  <div><span>Task start</span><strong>${esc(timeline ? formatSystemDateTime(timeline.firstStart) : '—')}</strong></div>
-                  <div><span>Task end</span><strong>${esc(timeline && timeline.lastEnd ? formatSystemDateTime(timeline.lastEnd) : (timeline?.activeSince ? 'Active' : '—'))}</strong></div>
+                <div class="tt-history-meta">
+                  <div class="tt-history-meta-row"><span>Project:</span><strong>${esc(task.project || '—')}</strong></div>
+                  <div class="tt-history-meta-row"><span>Tags:</span><strong>${esc(tags)}</strong></div>
+                  <div class="tt-history-meta-row"><span>Task start:</span><strong>${esc(timeline ? formatSystemDateTime(timeline.firstStart) : '—')}</strong></div>
+                  <div class="tt-history-meta-row"><span>Task end:</span><strong>${esc(endLabel === 'Active' ? 'Active' : (endLabel ? formatSystemDateTime(endLabel) : '—'))}</strong></div>
                 </div>
-                ${task.description ? `<div class="tt-history-desc">${esc(task.description)}</div>` : ''}
-                ${task.taskUrl ? `<div class="tt-history-link-row"><a class="tt-link-btn" href="${esc(task.taskUrl)}" target="_blank" rel="noopener noreferrer">Open link</a><button type="button" class="tt-btn" data-action="copy-link" data-task-id="${esc(task.id)}">Copy link</button></div>` : ''}
-                <div class="tt-history-sessions">
-                  ${daySessions.length
-                    ? daySessions.map((session) => `
-                      <div class="tt-history-session">
-                        <span>${esc(formatSystemDateTime(session.start))}</span>
-                        <span>${esc(formatSystemDateTime(session.end))}</span>
-                        <strong>${esc(compact(session.duration))}</strong>
+
+                <details class="tt-history-details">
+                  <summary>Task details</summary>
+                  <div class="tt-history-details-body">
+                    <div class="tt-history-details-grid">
+                      <div><span>Status:</span><strong>${esc(statusLabel)}</strong></div>
+                      <div><span>Total task time:</span><strong>${esc(timeline ? compact(timeline.total) : '0m')}</strong></div>
+                      <div><span>Created:</span><strong>${esc(formatSystemDateTime(task.createdAt))}</strong></div>
+                      <div><span>Updated:</span><strong>${esc(formatSystemDateTime(task.updatedAt))}</strong></div>
+                    </div>
+
+                    ${task.description ? `<div class="tt-history-desc">${esc(task.description)}</div>` : '<div class="tt-history-desc tt-history-desc-empty">No description</div>'}
+
+                    ${(task.projectUrl || task.taskUrl) ? `
+                      <div class="tt-history-link-row">
+                        ${task.projectUrl ? `<a class="tt-link-btn" href="${esc(task.projectUrl)}" target="_blank" rel="noopener noreferrer">Open project</a><button type="button" class="tt-btn" data-action="copy-project-link" data-task-id="${esc(task.id)}">Copy project link</button>` : ''}
+                        ${task.taskUrl ? `<a class="tt-link-btn" href="${esc(task.taskUrl)}" target="_blank" rel="noopener noreferrer">Open task</a><button type="button" class="tt-btn" data-action="copy-task-link" data-task-id="${esc(task.id)}">Copy task link</button>` : ''}
                       </div>
-                    `).join('')
-                    : '<div class="tt-empty-inline">No sessions for this day</div>'}
+                    ` : '<div class="tt-history-desc tt-history-desc-empty">No links</div>'}
+                  </div>
+                </details>
+
+                <div class="tt-history-actions">
+                  ${canResumeToday ? `<button type="button" class="tt-btn tt-resume-btn" data-action="resume-task" data-task-id="${esc(task.id)}">Resume task</button>` : ''}
+                  <button type="button" class="tt-btn tt-history-copy-btn" data-action="copy-history-brief" data-task-id="${esc(task.id)}" data-day-key="${esc(dayKeyValue)}" data-day-ms="${esc(String(Math.round(row.ms)))}">Copy brief</button>
+                  <button type="button" class="tt-btn danger" data-action="delete-task-history" data-task-id="${esc(task.id)}">Delete task</button>
+                </div>
+
+                ${pauseMarks.length ? `
+                  <details class="tt-history-pauses">
+                    <summary>Pause marks</summary>
+                    <div class="tt-history-pauses-list">
+                      ${pauseMarks.map((mark) => `<div>${esc(formatSystemDateTime(mark))}</div>`).join('')}
+                    </div>
+                  </details>
+                ` : ''}
+
+                <div class="tt-history-day-total">
+                  <span>Day total:</span>
+                  <strong>${esc(compact(row.ms))}</strong>
                 </div>
               </div>
             </details>
@@ -769,6 +848,7 @@ export async function init(container) {
   let editProjectMode = state.projects.length ? 'select' : 'input';
   let editDraft = null;
   let tickCount = 0;
+  const openHistoryKeys = new Set();
 
   async function mutate(fn) {
     const draft = normalize(await getState());
@@ -804,6 +884,7 @@ export async function init(container) {
           <summary>More options (optional)</summary>
           <div class="tt-advanced-fields">
             <textarea id="tt-new-description" placeholder="Task description" rows="3" maxlength="800"></textarea>
+            <input id="tt-new-project-url" type="text" placeholder="https://project-link" maxlength="300" />
             <input id="tt-new-url" type="text" placeholder="https://task-link" maxlength="300" />
           </div>
         </details>
@@ -830,6 +911,7 @@ export async function init(container) {
       const projectInput = refs.createForm.querySelector('[data-create-field="projectInput"]')?.value || '';
       const projectSelect = refs.createForm.querySelector('[data-create-field="projectSelect"]')?.value || '';
       const description = refs.createForm.querySelector('#tt-new-description')?.value || '';
+      const projectUrlInput = refs.createForm.querySelector('#tt-new-project-url')?.value || '';
       const urlInput = refs.createForm.querySelector('#tt-new-url')?.value || '';
 
       const before = state.tasks.length;
@@ -842,8 +924,9 @@ export async function init(container) {
         const projectRaw = createProjectMode === 'select' ? projectSelect : projectInput;
         const project = addProject(draft, projectRaw);
 
+        const projectUrl = normalizeTaskUrl(projectUrlInput);
         const taskUrl = normalizeTaskUrl(urlInput);
-        if (urlInput.trim() && !taskUrl) {
+        if ((projectUrlInput.trim() && !projectUrl) || (urlInput.trim() && !taskUrl)) {
           linkValid = false;
           return;
         }
@@ -853,16 +936,19 @@ export async function init(container) {
           title: normalizedTitle,
           project,
           description: normalizeDescription(description),
+          projectUrl,
           taskUrl,
           tags: normalizeTags(tags),
           sessions: [],
+          isStopped: false,
+          completedAt: null,
           createdAt: now,
           updatedAt: now
         });
       });
 
       if (!linkValid) {
-        window.showToast?.('Invalid task URL');
+        window.showToast?.('Invalid project/task URL');
         return;
       }
 
@@ -893,6 +979,7 @@ export async function init(container) {
           <input data-edit-field="tags" type="text" maxlength="120" value="${esc(editDraft?.tags || '')}" placeholder="#frontend, #bugfix" />
           ${renderProjectField('edit', editProjectMode, state.projects.length > 0, state.projects, editValues)}
           <textarea data-edit-field="description" rows="3" maxlength="800" placeholder="Task description">${esc(editDraft?.description || '')}</textarea>
+          <input data-edit-field="projectUrl" type="text" maxlength="300" value="${esc(editDraft?.projectUrl || '')}" placeholder="https://project-link" />
           <input data-edit-field="url" type="text" maxlength="300" value="${esc(editDraft?.url || '')}" placeholder="https://task-link" />
         </div>
 
@@ -920,8 +1007,13 @@ export async function init(container) {
       ? `<div class="tt-task-desc">${esc(task.description)}</div>`
       : '';
 
-    const linkHtml = task.taskUrl
-      ? `<div class="tt-task-link-row"><a href="${esc(task.taskUrl)}" target="_blank" rel="noopener noreferrer" class="tt-link-btn">Open link</a><button type="button" class="tt-btn" data-action="copy-link" data-task-id="${esc(task.id)}">Copy link</button></div>`
+    const linkHtml = (task.projectUrl || task.taskUrl)
+      ? `
+        <div class="tt-task-link-row">
+          ${task.projectUrl ? `<a href="${esc(task.projectUrl)}" target="_blank" rel="noopener noreferrer" class="tt-link-btn">Open project</a><button type="button" class="tt-btn" data-action="copy-project-link" data-task-id="${esc(task.id)}">Copy project link</button>` : ''}
+          ${task.taskUrl ? `<a href="${esc(task.taskUrl)}" target="_blank" rel="noopener noreferrer" class="tt-link-btn">Open task</a><button type="button" class="tt-btn" data-action="copy-task-link" data-task-id="${esc(task.id)}">Copy task link</button>` : ''}
+        </div>
+      `
       : '';
 
     const timeline = taskTimeline(task, now);
@@ -957,14 +1049,16 @@ export async function init(container) {
   }
 
   function renderTaskList() {
-    if (!state.tasks.length) {
-      refs.list.innerHTML = '<div class="tt-empty">No tasks yet. Add one to start tracking.</div>';
+    const visibleTasks = state.tasks.filter((task) => !task.isStopped || state.activeTaskId === task.id);
+
+    if (!visibleTasks.length) {
+      refs.list.innerHTML = '<div class="tt-empty">No active tasks. Resume from history or add a new one.</div>';
       return;
     }
 
     const now = Date.now();
 
-    refs.list.innerHTML = state.tasks.map((task) => {
+    refs.list.innerHTML = visibleTasks.map((task) => {
       if (editingTaskId === task.id && editDraft) {
         return renderEditCard(task, now);
       }
@@ -972,7 +1066,21 @@ export async function init(container) {
     }).join('');
   }
 
-  function renderStatsHistory() {
+  function syncOpenHistoryKeysFromDom() {
+    if (!refs.history) return;
+
+    refs.history.querySelectorAll('.tt-history-entry[data-history-key]').forEach((details) => {
+      if (!(details instanceof HTMLDetailsElement)) return;
+      const key = details.getAttribute('data-history-key');
+      if (!key) return;
+      if (details.open) openHistoryKeys.add(key);
+      else openHistoryKeys.delete(key);
+    });
+  }
+
+  function renderStatsHistory(options = {}) {
+    const skipHistory = Boolean(options.skipHistory);
+    if (!skipHistory) syncOpenHistoryKeysFromDom();
     const now = Date.now();
     const { days, taskById } = aggregate(state, now);
     const sum = totals(days, now);
@@ -992,11 +1100,13 @@ export async function init(container) {
       .join('');
 
     const todayKey = dayKey(now);
-    const yesterdayKey = dayKey(now - DAY);
-    const todayRows = rowsForDay(days.get(todayKey), taskById);
-    const yesterdayRows = rowsForDay(days.get(yesterdayKey), taskById);
 
-    refs.history.innerHTML = `${renderHistoryGroup('Today', todayRows, todayKey, taskById, now)}${renderHistoryGroup('Yesterday', yesterdayRows, yesterdayKey, taskById, now)}`;
+    if (!skipHistory) {
+      const yesterdayKey = dayKey(now - DAY);
+      const todayRows = rowsForDay(days.get(todayKey), taskById);
+      const yesterdayRows = rowsForDay(days.get(yesterdayKey), taskById);
+      refs.history.innerHTML = `${renderHistoryGroup('Today', todayRows, todayKey, taskById, now, openHistoryKeys)}${renderHistoryGroup('Yesterday', yesterdayRows, yesterdayKey, taskById, now, openHistoryKeys)}`;
+    }
 
     const tagsRows = topTagRows(days.get(todayKey));
     refs.tagsSummary.innerHTML = tagsRows.length
@@ -1018,6 +1128,66 @@ export async function init(container) {
     renderStatsHistory();
   }
 
+  refs.history.addEventListener('toggle', (event) => {
+    const details = event.target;
+    if (!(details instanceof HTMLDetailsElement)) return;
+    if (!details.classList.contains('tt-history-entry')) return;
+    const key = details.getAttribute('data-history-key');
+    if (!key) return;
+    if (details.open) openHistoryKeys.add(key);
+    else openHistoryKeys.delete(key);
+  }, true);
+
+  refs.history.addEventListener('click', async (event) => {
+    const button = event.target.closest('button[data-action]');
+    if (!button) return;
+
+    const action = button.getAttribute('data-action');
+    const taskId = button.dataset.taskId;
+    if (!taskId) return;
+
+    if (action === 'copy-project-link') {
+      const task = findTask(state, taskId);
+      if (task?.projectUrl) window.copyToClipboard?.(task.projectUrl, 'Project link copied');
+      return;
+    }
+
+    if (action === 'copy-task-link') {
+      const task = findTask(state, taskId);
+      if (task?.taskUrl) window.copyToClipboard?.(task.taskUrl, 'Task link copied');
+      return;
+    }
+
+    if (action === 'copy-history-brief') {
+      const task = findTask(state, taskId);
+      const dayKeyValue = button.dataset.dayKey || '';
+      const dayMs = Number(button.dataset.dayMs || 0);
+      if (!task || !dayKeyValue) return;
+      window.copyToClipboard?.(historyBriefText(task, dayKeyValue, dayMs), 'Brief copied');
+      return;
+    }
+
+    if (action === 'delete-task-history') {
+      const task = findTask(state, taskId);
+      if (!task) return;
+      if (!window.confirm(`Delete task "${task.title}"?`)) return;
+
+      clearEdit();
+      await mutate((draft, now) => removeTask(draft, taskId, now));
+      renderAll();
+      window.showToast?.('Task deleted');
+      return;
+    }
+
+    if (action === 'resume-task') {
+      await mutate((draft, now) => {
+        resumeStoppedTask(draft, taskId, now);
+      });
+      renderAll();
+      window.showToast?.('Task resumed');
+    }
+  });
+
   refs.list.addEventListener('input', (event) => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
@@ -1026,7 +1196,7 @@ export async function init(container) {
     const field = target.getAttribute('data-edit-field');
     if (!field) return;
 
-    if (field === 'title' || field === 'tags' || field === 'description' || field === 'url' || field === 'projectInput' || field === 'projectSelect') {
+    if (field === 'title' || field === 'tags' || field === 'description' || field === 'projectUrl' || field === 'url' || field === 'projectInput' || field === 'projectSelect') {
       editDraft[field] = target.value;
     }
   });
@@ -1047,9 +1217,24 @@ export async function init(container) {
 
     if (!taskId) return;
 
-    if (action === 'copy-link') {
+    if (action === 'copy-project-link') {
       const task = findTask(state, taskId);
-      if (task?.taskUrl) window.copyToClipboard?.(task.taskUrl, 'Link copied');
+      if (task?.projectUrl) window.copyToClipboard?.(task.projectUrl, 'Project link copied');
+      return;
+    }
+
+    if (action === 'copy-task-link') {
+      const task = findTask(state, taskId);
+      if (task?.taskUrl) window.copyToClipboard?.(task.taskUrl, 'Task link copied');
+      return;
+    }
+
+    if (action === 'resume-task') {
+      await mutate((draft, now) => {
+        resumeStoppedTask(draft, taskId, now);
+      });
+      renderAll();
+      window.showToast?.('Task resumed');
       return;
     }
 
@@ -1060,10 +1245,18 @@ export async function init(container) {
       return;
     }
 
-    if (action === 'pause' || action === 'stop') {
+    if (action === 'pause') {
       clearEdit();
       await mutate((draft, now) => pauseTask(draft, taskId, now));
       renderAll();
+      return;
+    }
+
+    if (action === 'stop') {
+      clearEdit();
+      await mutate((draft, now) => stopTask(draft, taskId, now));
+      renderAll();
+      window.showToast?.('Task moved to history');
       return;
     }
 
@@ -1079,6 +1272,7 @@ export async function init(container) {
         projectInput: task.project || '',
         projectSelect: task.project || '',
         description: task.description || '',
+        projectUrl: task.projectUrl || '',
         url: task.taskUrl || ''
       };
 
@@ -1102,11 +1296,13 @@ export async function init(container) {
       const projectRaw = editProjectMode === 'select' ? (editDraft?.projectSelect || '') : (editDraft?.projectInput || '');
       const tagsValue = editDraft?.tags || '';
       const descValue = editDraft?.description || '';
+      const projectUrlRaw = editDraft?.projectUrl || '';
       const urlRaw = editDraft?.url || '';
 
+      const nextProjectUrl = normalizeTaskUrl(projectUrlRaw);
       const nextUrl = normalizeTaskUrl(urlRaw);
-      if (urlRaw.trim() && !nextUrl) {
-        window.showToast?.('Invalid task URL');
+      if ((projectUrlRaw.trim() && !nextProjectUrl) || (urlRaw.trim() && !nextUrl)) {
+        window.showToast?.('Invalid project/task URL');
         return;
       }
 
@@ -1118,6 +1314,7 @@ export async function init(container) {
         current.project = addProject(draft, projectRaw);
         current.tags = normalizeTags(tagsValue);
         current.description = normalizeDescription(descValue);
+        current.projectUrl = nextProjectUrl;
         current.taskUrl = nextUrl;
         current.updatedAt = now;
       });
@@ -1175,8 +1372,8 @@ export async function init(container) {
   const timer = setInterval(() => {
     updateTaskTimers();
     tickCount += 1;
-    if (tickCount % 10 === 0) {
-      renderStatsHistory();
+    if (tickCount % 5 === 0) {
+      renderStatsHistory({ skipHistory: true });
     }
   }, 1000);
 
