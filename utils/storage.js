@@ -11,7 +11,7 @@ const DEFAULT_SETTINGS = {
   percentRows: [],
   
   // Clamp Generator
-  minViewport: 320,
+  minViewport: 640,
   maxViewport: 1440,
   useRem: false,
   minMaxFactor: 0.5,
@@ -92,3 +92,4 @@ export async function clearHistory(toolKey) {
   const historyKey = `${toolKey}History`;
   await saveSettings({ [historyKey]: [] });
 }
+

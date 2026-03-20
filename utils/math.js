@@ -26,11 +26,13 @@ export function calculateFluidClamp({ min, max, minViewport, maxViewport, useRem
   return `clamp(${minVal}, calc(${preferred}), ${maxVal})`;
 }
 
-export function generateAlternativeClamp({ min, max, maxViewport, useRem, rootFontSize }) {
-  // ac(48px, 24px, 640)
-  // this is a simplified custom function ac(max, min, viewport)
-  // just generate the string ac()
-  return `ac(${max}px, ${min}px, ${maxViewport})`;
+export function generateAlternativeClamp({ min, max, minViewport, maxViewport }) {
+  // ac(max, min, minViewport, maxViewport) - always in px
+  const minV = formatNumber(minViewport, 0);
+  const maxV = formatNumber(maxViewport, 0);
+  const maxPx = formatNumber(max, 4);
+  const minPx = formatNumber(min, 4);
+  return `ac(${maxPx}px, ${minPx}px, ${minV}, ${maxV})`;
 }
 
 // Percent Math
@@ -92,3 +94,4 @@ export function calculateColumnWidth(containerWidth, columns, gap) {
   if (columns <= 0) return 0;
   return (containerWidth - (gap * (columns - 1))) / columns;
 }
+

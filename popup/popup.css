@@ -1687,3 +1687,131 @@ body.embedded .header-actions {
   word-break: break-all;
   padding-right: 36px;
 }
+
+/* ==== AC helper ==== */
+.ac-accordion {
+  margin-top: 12px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-sidebar);
+}
+
+.ac-accordion summary {
+  cursor: pointer;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ac-accordion summary::marker { content: ''; }
+
+.ac-accordion summary::-webkit-details-marker { display: none; }
+
+.ac-accordion summary::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+  transform: rotate(45deg);
+  transform-origin: 50% 50%;
+  transition: transform 0.15s ease;
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+.ac-accordion[open] summary::after {
+  transform: rotate(-45deg) scaleY(-1);
+}
+
+.ac-body {
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ac-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.ac-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.ac-tab {
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  padding: 4px 10px;
+  font-size: 11px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.ac-tab.active {
+  color: var(--text-main);
+  border-color: var(--border-focus);
+  background: var(--bg-hover);
+}
+
+.ac-panel {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ac-panel.active {
+  display: flex;
+}
+
+.ac-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.ac-step code {
+  color: var(--text-main);
+}
+
+.ac-code-wrap {
+  position: relative;
+}
+
+.ac-code {
+  white-space: pre-wrap;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 11px;
+  background: #0b0b0b;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  min-height: 120px;
+}
+
+.ac-copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.ac-usage {
+  color: var(--text-main);
+}
+
+
+
+
+

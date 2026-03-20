@@ -173,18 +173,29 @@ export function init(container) {
     previewEl.style.justifyContent = state.justifyContent;
     previewEl.style.alignItems = state.alignItems;
     previewEl.style.alignContent = state.alignContent;
-    // Update gap
-    console.log('gap state:', state.gap, 'separateGap:', state.separateGap);
+    // Update gap (preview capped: half value, max 16px)
+    const parseGapValue = (value) => {
+      if (!value) return 0;
+      const parsed = parseFloat(String(value).replace('px', ''));
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+
+    const previewGapValue = (value) => {
+      const numeric = parseGapValue(value);
+      return Math.min(16, Math.max(0, numeric / 2));
+    };
+
     if (state.separateGap && state.rowGap && state.colGap) {
-      previewEl.style.rowGap = state.rowGap;
-      previewEl.style.columnGap = state.colGap;
+      const rowGap = previewGapValue(state.rowGap);
+      const colGap = previewGapValue(state.colGap);
+      previewEl.style.rowGap = `${rowGap}px`;
+      previewEl.style.columnGap = `${colGap}px`;
       previewEl.style.gap = '';
-      console.log('Applied row/col gap:', state.rowGap, state.colGap);
     } else {
-      previewEl.style.gap = state.gap;
-      previewEl.style.rowGap = '';
-      previewEl.style.columnGap = '';
-      console.log('Applied gap:', state.gap);
+      const gap = previewGapValue(state.gap);
+      previewEl.style.gap = `${gap}px`;
+      previewEl.style.rowGap = `${gap}px`;
+      previewEl.style.columnGap = `${gap}px`;
     }
 
     // Update items
@@ -365,3 +376,5 @@ export function init(container) {
     }
   };
 }
+
+

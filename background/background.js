@@ -2,7 +2,7 @@
 
 const DEFAULT_SETTINGS = {
   rootFontSize: 16,
-  minViewport: 320,
+  minViewport: 640,
   maxViewport: 1440,
   useRem: false,
   minMaxFactor: 0.5
